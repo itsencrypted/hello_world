@@ -7,20 +7,40 @@
 const hre = require("hardhat");
 
 async function main() {
+  await deployContract();
+
+  //await contract.deployed();
+}
+
+async function deployContract() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
   const unlockTime = currentTimestampInSeconds + 60;
-
   const lockedAmount = hre.ethers.utils.parseEther("0.001");
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const contractFactory = await hre.ethers.getContractFactory("Lock");
+  const contract = await contractFactory.deploy(unlockTime, {
+    value: lockedAmount,
+  });
+  await contract.deployTransaction.wait();
 
-  await lock.deployed();
+  const receipt = await contract.deployTransaction.wait();
+  console.log(
+    `contract deployed at address ${contract.address} at block${receipt.blockNumber}`
+  );
 
+  const initialText = await contract.retrieve();
+  console.log(`the initial text is ${initialText}`);
+  const setTextTx = await contract.store("New Text here!");
+  const setTextTxReceipt = await setTextTx.wait();
+  console.log(
+    `The tx Recepit block Number is: ${setTextTxReceipt.blockNumber}`
+  );
+  const newText = await contract.retrieve();
+  console.log(`The new text in the contract is: ${newText}`);
   console.log(
     `Lock with ${ethers.utils.formatEther(
       lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+    )}ETH and unlock timestamp ${unlockTime} deployed to ${contract.address}`
   );
 }
 

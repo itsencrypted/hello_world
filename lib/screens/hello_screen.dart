@@ -49,108 +49,69 @@ class _HelloScreenState extends ConsumerState<HelloScreen> {
     return GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
-          ref.read(imageOpacityProvider) == 1.0;
+          ref.read(imageOpacityProvider) == 0.5;
         },
         child: Scaffold(
           appBar: AppBar(
             title: const CustomText(text: "Hello World!"),
             centerTitle: true,
+            backgroundColor: Colors.pink[300],
           ),
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.white],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Center(
-                child: ethUtils.isLoading
-                    ? const CircularProgressIndicator()
-                    : Stack(
+          body: Center(
+              child: ethUtils.isLoading
+                  ? Column(children: [
+                      SizedBox(
+                        width: 240,
+                        height: 240,
+                        child: Opacity(
+                          opacity: imageOpacity,
+                          child: Image.asset('assets/images/hello_image.png'),
+                        ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Align(
-                            alignment: Alignment.topCenter,
-                            widthFactor: 1.2,
-                            child: Opacity(
-                              opacity: imageOpacity,
-                              child:
-                                  Image.asset('assets/images/hello_image.png'),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Flexible(
-                                        flex: 1,
-                                        child: FittedBox(
-                                          fit: BoxFit.fitWidth,
-                                          child: Text(
-                                            "HELLO",
-                                            style: TextStyle(
-                                                fontSize: 60,
-                                                color: Colors.blue),
-                                          ),
-                                        )),
-                                    Flexible(
-                                        flex: 1,
-                                        child: FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: CustomText(
-                                                text: ethUtils.deployedName!))),
-                                    const SizedBox(height: 50),
-                                    TextField(
-                                      focusNode: _focusNode,
-                                      controller: _nameController,
-                                      decoration: const InputDecoration(
-                                          hintText: 'Enter a name',
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 10,
-                                            horizontal: 20,
-                                          ),
-                                          border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(32))),
-                                          focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Colors.lightBlueAccent,
-                                                width: 2.0,
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(32)))),
+                          CustomText(text: "Hello ${ethUtils.nameToSet}"),
+                          const SizedBox(height: 10),
+                          TextField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter a name',
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 20,
+                                ),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32))),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent,
+                                      width: 2.0,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 30),
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue),
-                                        onPressed: () {
-                                          if (_nameController.text.isEmpty) {
-                                            return;
-                                          }
-                                          ethUtils
-                                              .setName(_nameController.text);
-                                          ref.read(imageOpacityProvider) == 1.0;
-                                          _nameController.clear();
-                                        },
-                                        child: const Text(
-                                          'Set Name',
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(32)))),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black),
+                            onPressed: () {
+                              if (_nameController.text.isEmpty) {
+                                return;
+                              }
+                              ethUtils.store(_nameController.text);
+                              ref.read(imageOpacityProvider) == 1.0;
+                              _nameController.clear();
+                            },
+                            child: const Text(
+                              'Set Name',
+                              style: TextStyle(fontSize: 20),
                             ),
                           ),
                         ],
-                      )),
-          ),
+                      )
+                    ])
+                  : const CircularProgressIndicator()),
         ));
   }
 }

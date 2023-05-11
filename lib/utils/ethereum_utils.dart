@@ -27,9 +27,12 @@ class EthereumUtils extends StateNotifier<bool> {
   EthereumAddress? _contractAddress;
   EthPrivateKey? _credentials;
   DeployedContract? _contract;
-  ContractFunction? _setName;
-  ContractFunction? _getUserName;
+  ContractFunction? _store;
+  ContractFunction? _retrieve;
   String? deployedName;
+  //ContractFunction? _withdrawal;
+
+  String? nameToSet;
 
   initialSetup() async {
     http.Client _httpClient = http.Client();
@@ -49,7 +52,7 @@ class EthereumUtils extends StateNotifier<bool> {
     _abi = jsonEncode(jsonAbi["abi"]);
     _contractAddress =
         //EthereumAddress.fromHex(jsonAbi["networks"]["31337"]["address"]);
-        EthereumAddress.fromHex("0x5FbDB2315678afecb367f032d93F642f64180aa3");
+        EthereumAddress.fromHex("0x5fbdb2315678afecb367f032d93f642f64180aa3");
   }
 
   Future<void> getCredentials() async {
@@ -59,32 +62,29 @@ class EthereumUtils extends StateNotifier<bool> {
   Future<void> getDeployedContract() async {
     _contract = DeployedContract(
         ContractAbi.fromJson(_abi!, "Lock"), _contractAddress!);
-    _setName = _contract!.function("setName");
-    _getUserName = _contract!.function("getUserName");
-    //setName(nameToSet);
-    getUserName();
+    _store = _contract!.function("store");
+    _retrieve = _contract!.function("retrieve");
+    //withdrawal;
+    retrieve();
   }
 
-// ContractFunction? _setName;
-  setName(String nameToSet) async {
-    isLoading = true;
-    state = isLoading;
-    await _web3client!.sendTransaction(
-        _credentials!,
-        Transaction.callContract(
-            contract: _contract!,
-            function: _setName!,
-            parameters: [nameToSet]));
-    getUserName();
-  }
-
-// ContractFunction? _getuserName;
-  getUserName() async {
+  retrieve() async {
     var currentName = await _web3client!
-        .call(contract: _contract!, function: _getUserName!, params: []);
+        .call(contract: _contract!, function: _retrieve!, params: []);
     deployedName = currentName[0];
     isLoading = false;
     state = isLoading;
-    //getUserName();
+  }
+
+  store(String text) async {
+    // Setting the name to nameToSet(name defined by user)
+    isLoading = true;
+    state = isLoading;
+    // notifyListeners();
+    await _web3client!.sendTransaction(
+        _credentials!,
+        Transaction.callContract(
+            contract: _contract!, function: _store!, parameters: [nameToSet]));
+    retrieve();
   }
 }

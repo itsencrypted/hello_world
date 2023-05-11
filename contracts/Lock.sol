@@ -7,7 +7,7 @@ pragma solidity ^0.8.9;
 contract Lock {
     uint public unlockTime;
     address payable public owner;
-    string public userName;
+    string public text;
 
     event Withdrawal(uint amount, uint when);
 
@@ -19,6 +19,7 @@ contract Lock {
 
         unlockTime = _unlockTime;
         owner = payable(msg.sender);
+        // text = "DeployedName";
     }
 
     function withdraw() public {
@@ -33,11 +34,11 @@ contract Lock {
         owner.transfer(address(this).balance);
     }
 
-    function setName(string memory _name) public {
-        userName = _name;
+    function store(string memory _text) public {
+        text = _text;
     }
 
-    function getUserName() public view returns (string memory) {
-        return userName;
+    function retrieve() public view returns (string memory) {
+        return text;
     }
 }
